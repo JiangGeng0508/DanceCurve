@@ -4,7 +4,12 @@
 
 [node name="SoundEnvelope" type="Node2D"]
 script = ExtResource("1_whhkw")
-UpdateInterval = 1.0
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
 bus = &"SubBus"
+
+[node name="HUD" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1280.0
+offset_bottom = 720.0

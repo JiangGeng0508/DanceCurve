@@ -10,7 +10,7 @@ public partial class SoundEnvelopeController : Node2D
 	[Export] public string CaptureBusName { get; set; } = "SubBus";
 	[Export] public int CaptureEffectIndex { get; set; } = 0;
 	[Export] public AudioStream PlayingAudio { get; set; } = GD.Load<AudioStream>("res://Audio/maldita.ogg");
-	[Export] public float SubBusDelay { get; set; } = 0.1f;
+	[Export] public float AudioFixDelay { get; set; } = 0.1f;
 
 	[ExportGroup("BufferA")]
     [Export] public string BufferShaderPath { get; set; } = "res://Shader/sound-envelope-buffer-a.gdshader";
@@ -34,8 +34,8 @@ public partial class SoundEnvelopeController : Node2D
     
     private int _frameCount;
 	private AudioEffectCapture _capture;
-
-    public override void _Ready()
+	
+	public override void _Ready()
     {
         SetupOutput();
         SetupPingPong();
@@ -56,6 +56,8 @@ public partial class SoundEnvelopeController : Node2D
 		{
 			GD.PushWarning($"未找到 AudioEffectCapture：Bus='{CaptureBusName}', Index={CaptureEffectIndex}");
 		}
+		
+		GetTree().GetRoot().GetWindow().FilesDropped += OnFilesDropped;
     }
 
     public override void _PhysicsProcess(double delta)
@@ -129,7 +131,7 @@ public partial class SoundEnvelopeController : Node2D
         for (var x = 0; x < WaveformSampleCount; x++)
         {
             var v = x < count ? samples[x] : 0.0f;
-            _audioImage.SetPixel(x, 0, new Color(v, 0f, 0f, 1f));
+            _audioImage.SetPixel(x, 0, new Color(v, 0f, 0f));
         }
         _audioTexture.Update(_audioImage);
     }
@@ -169,7 +171,7 @@ public partial class SoundEnvelopeController : Node2D
             var cr = new ColorRect
             {
                 Color = Colors.Black,
-                Size = (Vector2)Resolution,
+                Size = Resolution,
                 Material = null
             };
             vp.AddChild(cr);
@@ -200,16 +202,18 @@ public partial class SoundEnvelopeController : Node2D
     private void SetupAudioTexture()
     {
         _audioImage = Image.CreateEmpty(WaveformSampleCount, 1, false, Image.Format.Rf);
-        _audioImage.Fill(new Color(0f, 0f, 0f, 1f));
+        _audioImage.Fill(new Color(0f, 0f, 0f));
         _audioTexture = ImageTexture.CreateFromImage(_audioImage);
     }
 
     private void SetupAudioPlayer()
     {
+	    _effectAudioPlayer?.Free();
+	    _realAudioPlayer?.Free();
 	    _effectAudioPlayer = InitAudioPlayer(PlayingAudio, "SubBus");
 	    _effectAudioPlayer.Play();
 	    _realAudioPlayer = InitAudioPlayer(PlayingAudio);
-	    GetTree().CreateTimer(SubBusDelay).Timeout += () =>
+	    GetTree().CreateTimer(AudioFixDelay).Timeout += () =>
 	    {
 		    _realAudioPlayer.Play();
 	    };
@@ -222,6 +226,43 @@ public partial class SoundEnvelopeController : Node2D
 	    audioStreamPlayer.Stream = audioStream;
 	    AddChild(audioStreamPlayer);
 	    return audioStreamPlayer;
+    }
+
+    private void OnFilesDropped(string[] files)
+    {
+	    if (files.Length > 1)
+	    {
+		    GD.PushWarning("Cant dropped more than one file");    
+	    }
+	    var file = files[0];
+	    GD.Print($"file loaded: {file}\n");
+	    switch (file.GetExtension())
+	    {
+		    case "ogg":
+		    case "wav":
+		    case "mp3":
+			    UpdateAudioStream();
+			    break;
+		    default:
+			    GD.PushWarning("Unsupported file type");
+			    return;
+	    }
+	    return;
+
+	    void UpdateAudioStream()
+	    {
+		    var res = GD.Load<AudioStream>(file);
+		    PlayingAudio = res;
+		    ReloadPlayer();
+	    }
+    }
+    private void ReloadPlayer()
+    {
+	    SetupOutput();
+	    SetupPingPong();
+	    SetupAudioTexture();
+	    SetupImagePass();
+	    SetupAudioPlayer();
     }
 }
 
