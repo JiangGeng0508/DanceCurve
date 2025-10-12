@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3 uid="uid://cpe5vf0fqkhn5"]
+
+[ext_resource type="Script" uid="uid://dicm5jq04njuv" path="res://Script/SoundEnvelopeController.cs" id="1_whhkw"]
+
+[node name="SoundEnvelope" type="Node2D"]
+script = ExtResource("1_whhkw")
+UpdateInterval = 1.0
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+bus = &"SubBus"
