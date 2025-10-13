@@ -11,17 +11,18 @@ public partial class SoundEnvelopeController : Node2D
 	[Export] public int CaptureEffectIndex { get; set; } = 0;
 	[Export] public AudioStream PlayingAudio { get; set; } = GD.Load<AudioStream>("res://Audio/maldita.ogg");
 	[Export] public float AudioFixDelay { get; set; } = 0.1f;
-
+	
 	[ExportGroup("BufferA")]
-    [Export] public string BufferShaderPath { get; set; } = "res://Shader/sound-envelope-buffer-a.gdshader";
 	[Export] public float UpdateInterval { get; set; } = 10f;
 	[Export(PropertyHint.Range,"0.3,0.5")] public float EnvelopeSmoothing = 0.4f;
 	
 	[ExportGroup("Image")]
-    [Export] public string ImageShaderPath { get; set; } = "res://Shader/sound-envelope-image.gdshader";
 	[Export] public Vector2I Resolution { get; set; } = new Vector2I(1280,720);
-    [Export] public TextureRect OutputRect { get; set; }
     
+    private readonly string _bufferShaderPath = "res://Shader/sound-envelope-buffer-a.gdshader";
+	private readonly string _imageShaderPath = "res://Shader/sound-envelope-image.gdshader";
+
+	private TextureRect _outputRect;
     private SubViewport[] _viewports = new SubViewport[2];
     private ColorRect[] _passes = new ColorRect[2];
     private ShaderMaterial[] _bufferMaterials = new ShaderMaterial[2];
@@ -36,7 +37,7 @@ public partial class SoundEnvelopeController : Node2D
 	private AudioEffectCapture _capture;
 	
 	public override void _Ready()
-    {
+	{
         SetupOutput();
         SetupPingPong();
         SetupAudioTexture();
@@ -138,24 +139,21 @@ public partial class SoundEnvelopeController : Node2D
 
     private void SetupOutput()
     {
-        if (OutputRect == null)
+        _outputRect = new TextureRect
         {
-            OutputRect = new TextureRect
-            {
-                Name = "EnvelopeOutput",
-                StretchMode = TextureRect.StretchModeEnum.Scale,
-                SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
-                SizeFlagsVertical = Control.SizeFlags.ExpandFill
-            };
-            AddChild(OutputRect);
-        }
+            Name = "EnvelopeOutput",
+            StretchMode = TextureRect.StretchModeEnum.Scale,
+            SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
+            SizeFlagsVertical = Control.SizeFlags.ExpandFill
+        };
+        AddChild(_outputRect);
     }
 
     private void SetupPingPong()
     {
-        var bufferShader = GD.Load<Shader>(BufferShaderPath);
+        var bufferShader = GD.Load<Shader>(_bufferShaderPath);
         if (bufferShader == null)
-            throw new InvalidOperationException($"Failed to load shader: {BufferShaderPath}");
+            throw new InvalidOperationException($"Failed to load shader: {_bufferShaderPath}");
 
         for (int i = 0; i < 2; i++)
         {
@@ -187,16 +185,16 @@ public partial class SoundEnvelopeController : Node2D
 
     private void SetupImagePass()
     {
-        var imageShader = GD.Load<Shader>(ImageShaderPath);
+        var imageShader = GD.Load<Shader>(_imageShaderPath);
         if (imageShader == null)
-            throw new InvalidOperationException($"Failed to load shader: {ImageShaderPath}");
+            throw new InvalidOperationException($"Failed to load shader: {_imageShaderPath}");
 
         _imageMaterial = new ShaderMaterial { Shader = imageShader };
         _imageMaterial.SetShaderParameter("iResolution", (Vector2)Resolution);
-        OutputRect.Material = _imageMaterial;
+        _outputRect.Material = _imageMaterial;
 
         // 将当前写入的 viewport 纹理显示出来（初始为 0）
-        OutputRect.Texture = _viewports[0].GetTexture();
+        _outputRect.Texture = _viewports[0].GetTexture();
     }
 
     private void SetupAudioTexture()
@@ -241,20 +239,19 @@ public partial class SoundEnvelopeController : Node2D
 		    case "ogg":
 		    case "wav":
 		    case "mp3":
-			    UpdateAudioStream();
+			    UpdateAudioStream(file);
 			    break;
 		    default:
 			    GD.PushWarning("Unsupported file type");
 			    return;
 	    }
-	    return;
+    }
 
-	    void UpdateAudioStream()
-	    {
-		    var res = GD.Load<AudioStream>(file);
-		    PlayingAudio = res;
-		    ReloadPlayer();
-	    }
+    private void UpdateAudioStream(string file)
+    {
+	    var res = GD.Load<AudioStream>(file);
+	    PlayingAudio = res;
+	    ReloadPlayer();
     }
     private void ReloadPlayer()
     {
@@ -263,6 +260,20 @@ public partial class SoundEnvelopeController : Node2D
 	    SetupAudioTexture();
 	    SetupImagePass();
 	    SetupAudioPlayer();
+    }
+
+    private void OnPause(bool paused)
+    {
+	    if (paused)
+	    {
+		    _effectAudioPlayer.Stop();
+		    _realAudioPlayer.Stop();
+	    }
+	    else if(!_realAudioPlayer.IsPlaying())
+	    {
+		    _effectAudioPlayer.Play();
+		    _realAudioPlayer.Play();
+	    }
     }
 }
 
