@@ -11,16 +11,12 @@ public partial class Hud : HBoxContainer
 
     private Timer _idleTimer;
     
-    public static Dictionary<int, string> AudioList = new();
-
     private string _selectedFile = ""; 
     
     public override void _Ready()
     {
         _idleTimer = GetNode<Timer>("IdleTimer");
-        
-        AudioList.Add(0, "res://Audio/maldita.ogg");
-        AudioList.Add(1, "res://Audio/Ludum Dare 28 03.ogg");
+        Hide();
     }
 
     public override void _Input(InputEvent @event)
@@ -44,6 +40,5 @@ public partial class Hud : HBoxContainer
         EmitSignalChangeAudio(_selectedFile);
     }
     private void OnIdleTimerTimeout() => Hide();
-    private void OnLocalAudioSelected(int index) => EmitSignalChangeAudio(AudioList[index]);
     private void OnNewAudioButtenPressed() => EmitSignalShowFileWindow();
 }

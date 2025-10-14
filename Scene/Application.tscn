@@ -20,15 +20,6 @@ offset_right = 245.0
 offset_bottom = 32.0
 script = ExtResource("2_w4c6f")
 
-[node name="LocalAudio" type="OptionButton" parent="HUD"]
-layout_mode = 2
-selected = 0
-item_count = 2
-popup/item_0/text = "maldita"
-popup/item_0/id = 0
-popup/item_1/text = "Ludum"
-popup/item_1/id = 1
-
 [node name="NewAudio" type="Button" parent="HUD"]
 layout_mode = 2
 text = "Open"
@@ -40,7 +31,7 @@ initial_position = 2
 ok_button_text = "Confirm"
 file_mode = 0
 display_mode = 1
-access = 2
+root_subfolder = "res://Audio/"
 filters = PackedStringArray("*.ogg", "*.mp3", "*.wav")
 hidden_files_toggle_enabled = false
 folder_creation_enabled = false
@@ -54,7 +45,6 @@ one_shot = true
 
 [connection signal="ChangeAudio" from="HUD" to="SoundEnvelope" method="UpdateAudioStream"]
 [connection signal="ShowFileWindow" from="HUD" to="HUD/NewAudio/FileDialog" method="show"]
-[connection signal="item_selected" from="HUD/LocalAudio" to="HUD" method="OnLocalAudioSelected"]
 [connection signal="pressed" from="HUD/NewAudio" to="HUD" method="OnNewAudioButtenPressed"]
 [connection signal="close_requested" from="HUD/NewAudio/FileDialog" to="HUD/NewAudio/FileDialog" method="hide"]
 [connection signal="confirmed" from="HUD/NewAudio/FileDialog" to="HUD" method="OnFileConfirmed"]

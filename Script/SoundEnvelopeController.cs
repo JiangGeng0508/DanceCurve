@@ -249,8 +249,23 @@ public partial class SoundEnvelopeController : Node2D
 
     private void UpdateAudioStream(string file)
     {
-	    var res = GD.Load<AudioStream>(file);
-	    PlayingAudio = res;
+	    AudioStream res;
+	    switch (file.GetExtension())
+	    {
+		    case "ogg":
+			    res = AudioStreamOggVorbis.LoadFromFile(file);
+			    break;
+		    case "wav":
+			    res = AudioStreamWav.LoadFromFile(file);
+			    break;
+		    case "mp3":
+			    res = AudioStreamMP3.LoadFromFile(file);
+			    break;
+		    default:
+			    GD.PushError("Unsupported file type");
+			    return;
+	    }
+ 	    PlayingAudio = res;
 	    ReloadPlayer();
     }
     private void ReloadPlayer()
