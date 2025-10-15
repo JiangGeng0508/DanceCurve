@@ -4,4 +4,12 @@
     <TargetFramework Condition=" '$(GodotTargetPlatform)' == 'android' ">net9.0</TargetFramework>
     <EnableDynamicLoading>true</EnableDynamicLoading>
   </PropertyGroup>
+  <ItemGroup>
+    <Content Include="Shader\sound-envelope-buffer-a.gdshader" />
+    <Content Include="Shader\sound-envelope-buffer-a.gdshader.uid" />
+    <Content Include="Shader\sound-envelope-common.gdshaderinc" />
+    <Content Include="Shader\sound-envelope-common.gdshaderinc.uid" />
+    <Content Include="Shader\sound-envelope-image.gdshader" />
+    <Content Include="Shader\sound-envelope-image.gdshader.uid" />
+  </ItemGroup>
 </Project>

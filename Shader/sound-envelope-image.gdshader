@@ -6,10 +6,10 @@ render_mode blend_disabled;
 uniform vec2 iResolution;
 uniform sampler2D iChannel0;
 
-#define LINE_RENDER_MARGIN 0.23
-#define MAX_DISTANCE 1000000.0
+#define LINE_RENDER_MARGIN 0.1
+#define MAX_DISTANCE 10000.0
 
-const float line_render_width = 0.75;
+const float line_render_width = 1.0;
 
 float get_envelope_from_buffer(int history_row, int bin_index) {
 	float texture_v = 1.0 - (float(history_row) + 0.5) / float(NUMBER_OF_HISTORY_ROWS);

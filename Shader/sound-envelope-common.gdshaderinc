@@ -1,5 +1,5 @@
 #define NUMBER_OF_BINS 64
-#define NUMBER_OF_HISTORY_ROWS 5
+#define NUMBER_OF_HISTORY_ROWS 3
 
 const float amplitude_scale = 100.0;
 const float isometric_zoom   = 3.0;

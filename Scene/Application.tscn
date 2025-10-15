@@ -1,53 +1,114 @@
-[gd_scene load_steps=3 format=3 uid="uid://ctrar3y6wyvaj"]
+[gd_scene load_steps=6 format=3 uid="uid://ctrar3y6wyvaj"]
 
 [ext_resource type="PackedScene" uid="uid://cpe5vf0fqkhn5" path="res://Scene/SoundEnvelope.tscn" id="1_dk0ox"]
 [ext_resource type="Script" uid="uid://b4k2y760nej6k" path="res://Script/Hud.cs" id="2_w4c6f"]
+[ext_resource type="Texture2D" uid="uid://b1g4jpttyamuy" path="res://Image/progressbar_under.png" id="3_1epjk"]
+[ext_resource type="Texture2D" uid="uid://d1iybn61xlugy" path="res://Image/progressbar_progress.png" id="5_3jdfa"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_fkjn7"]
+font_size = 32
 
 [node name="Application" type="Control"]
 z_index = 10
 layout_mode = 3
 anchors_preset = 0
-offset_right = 1280.0
-offset_bottom = 720.0
+offset_right = 640.0
+offset_bottom = 480.0
 
 [node name="SoundEnvelope" parent="." instance=ExtResource("1_dk0ox")]
-Resolution = Vector2i(640, 480)
 
-[node name="HUD" type="HBoxContainer" parent="."]
+[node name="HUD" type="Control" parent="."]
 z_index = 5
-layout_mode = 0
-offset_right = 245.0
-offset_bottom = 32.0
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 script = ExtResource("2_w4c6f")
 
-[node name="NewAudio" type="Button" parent="HUD"]
+[node name="IdleTimer" type="Timer" parent="HUD"]
+one_shot = true
+
+[node name="AudioProgress" type="TextureProgressBar" parent="HUD"]
+custom_minimum_size = Vector2(128, 16)
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -128.0
+offset_bottom = 32.0
+grow_horizontal = 0
+max_value = 1.0
+step = 0.01
+texture_under = ExtResource("3_1epjk")
+texture_progress = ExtResource("5_3jdfa")
+
+[node name="AudioList" type="ItemList" parent="HUD"]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -164.0
+offset_top = -89.0
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="TabMenu" type="HBoxContainer" parent="HUD"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="NewAudio" type="Button" parent="HUD/TabMenu"]
 layout_mode = 2
 text = "Open"
 
-[node name="FileDialog" type="FileDialog" parent="HUD/NewAudio"]
+[node name="FileDialog" type="FileDialog" parent="HUD/TabMenu/NewAudio"]
 oversampling_override = 1.0
 title = "Open a File"
 initial_position = 2
 ok_button_text = "Confirm"
 file_mode = 0
 display_mode = 1
-root_subfolder = "res://Audio/"
+access = 2
 filters = PackedStringArray("*.ogg", "*.mp3", "*.wav")
 hidden_files_toggle_enabled = false
 folder_creation_enabled = false
 
-[node name="Pause" type="CheckButton" parent="HUD"]
+[node name="Pause" type="CheckButton" parent="HUD/TabMenu"]
 layout_mode = 2
 text = "Pause"
 
-[node name="IdleTimer" type="Timer" parent="HUD"]
-one_shot = true
+[node name="Help" type="Button" parent="HUD/TabMenu"]
+layout_mode = 2
 
+[node name="Label" type="Label" parent="HUD"]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -96.0
+offset_top = -112.0
+offset_right = 96.0
+offset_bottom = -48.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "拖入音频文件自动播放"
+label_settings = SubResource("LabelSettings_fkjn7")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[connection signal="AudioProgress" from="SoundEnvelope" to="HUD/AudioProgress" method="set_value"]
 [connection signal="ChangeAudio" from="HUD" to="SoundEnvelope" method="UpdateAudioStream"]
-[connection signal="ShowFileWindow" from="HUD" to="HUD/NewAudio/FileDialog" method="show"]
-[connection signal="pressed" from="HUD/NewAudio" to="HUD" method="OnNewAudioButtenPressed"]
-[connection signal="close_requested" from="HUD/NewAudio/FileDialog" to="HUD/NewAudio/FileDialog" method="hide"]
-[connection signal="confirmed" from="HUD/NewAudio/FileDialog" to="HUD" method="OnFileConfirmed"]
-[connection signal="file_selected" from="HUD/NewAudio/FileDialog" to="HUD" method="OnFileSelected"]
-[connection signal="toggled" from="HUD/Pause" to="SoundEnvelope" method="OnPause"]
+[connection signal="ShowFileWindow" from="HUD" to="HUD/TabMenu/NewAudio/FileDialog" method="show"]
 [connection signal="timeout" from="HUD/IdleTimer" to="HUD" method="OnIdleTimerTimeout"]
+[connection signal="pressed" from="HUD/TabMenu/NewAudio" to="HUD" method="OnNewAudioButtenPressed"]
+[connection signal="close_requested" from="HUD/TabMenu/NewAudio/FileDialog" to="HUD/TabMenu/NewAudio/FileDialog" method="hide"]
+[connection signal="confirmed" from="HUD/TabMenu/NewAudio/FileDialog" to="HUD" method="OnFileConfirmed"]
+[connection signal="file_selected" from="HUD/TabMenu/NewAudio/FileDialog" to="HUD" method="OnFileSelected"]
+[connection signal="toggled" from="HUD/TabMenu/Pause" to="SoundEnvelope" method="OnPause"]

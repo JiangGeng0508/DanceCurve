@@ -35,7 +35,7 @@ float compress_envelope(float x) {
     return x / (1.0 + k * x);
 }
 float smoothEnvelope(float old, float current, float smoothing) {
-    return (current * smoothing) + (old * (1.0 - smoothing));
+    return (old * smoothing) + (current * (1.0 - smoothing));
 }
 void fragment() {
 	vec2 uv = FRAGCOORD.xy / iResolution.xy;
@@ -53,6 +53,7 @@ void fragment() {
 		float old_envelope = texture(iChannel0, uv).r;
 
 		float effective_blend = clamp(blend_factor * uEnvelopeSmoothing, 0.0, 1.0);
+		effective_blend = blend_factor * uEnvelopeSmoothing;
 
 		// 应用平滑处理
 		float smoothed_envelope = smoothEnvelope(old_envelope, new_envelope, uEnvelopeSmoothing);
@@ -60,8 +61,7 @@ void fragment() {
 
 		// 使用平滑后的值作为最终输出
 		float blended_envelope = mix(old_envelope, smoothed_envelope, effective_blend);
+		//blended_envelope = mix(old_envelope, new_envelope, effective_blend);
 		COLOR = vec4(blended_envelope, blended_envelope, blended_envelope, 1.0);
 	}
 }
-
-

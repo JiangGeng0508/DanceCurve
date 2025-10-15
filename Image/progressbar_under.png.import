@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c83yfhie21xrw"
-path="res://.godot/imported/SoundEnvelopePreview.png-edae4035f0717fb58fec983a140e22e1.ctex"
+uid="uid://b1g4jpttyamuy"
+path="res://.godot/imported/progressbar_under.png-bb861bc5bd22e7d87888afa01714f18a.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://SoundEnvelopePreview.png"
-dest_files=["res://.godot/imported/SoundEnvelopePreview.png-edae4035f0717fb58fec983a140e22e1.ctex"]
+source_file="res://Image/progressbar_under.png"
+dest_files=["res://.godot/imported/progressbar_under.png-bb861bc5bd22e7d87888afa01714f18a.ctex"]
 
 [params]
 
