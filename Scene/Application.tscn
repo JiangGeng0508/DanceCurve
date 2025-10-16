@@ -9,13 +9,15 @@
 font_size = 32
 
 [node name="Application" type="Control"]
-z_index = 10
 layout_mode = 3
 anchors_preset = 0
 offset_right = 640.0
 offset_bottom = 480.0
 
 [node name="SoundEnvelope" parent="." instance=ExtResource("1_dk0ox")]
+texture_filter = 6
+PlayingAudio = null
+EnvelopeSmoothing = 0.15
 
 [node name="HUD" type="Control" parent="."]
 z_index = 5
@@ -83,8 +85,9 @@ text = "Pause"
 
 [node name="Help" type="Button" parent="HUD/TabMenu"]
 layout_mode = 2
+text = "  ?  "
 
-[node name="Label" type="Label" parent="HUD"]
+[node name="NoticeLabel" type="Label" parent="HUD"]
 visible = false
 layout_mode = 1
 anchors_preset = 8
@@ -112,3 +115,4 @@ vertical_alignment = 1
 [connection signal="confirmed" from="HUD/TabMenu/NewAudio/FileDialog" to="HUD" method="OnFileConfirmed"]
 [connection signal="file_selected" from="HUD/TabMenu/NewAudio/FileDialog" to="HUD" method="OnFileSelected"]
 [connection signal="toggled" from="HUD/TabMenu/Pause" to="SoundEnvelope" method="OnPause"]
+[connection signal="pressed" from="HUD/TabMenu/Help" to="HUD" method="OnHelpButtonPressed"]

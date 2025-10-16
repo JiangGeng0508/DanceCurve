@@ -2,7 +2,7 @@
 
 [sub_resource type="AudioEffectCapture" id="AudioEffectCapture_f4lrx"]
 resource_name = "Capture"
-buffer_length = 0.5
+buffer_length = 0.3
 
 [resource]
 bus/0/solo = true

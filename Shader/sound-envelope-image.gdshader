@@ -45,7 +45,7 @@ void fragment() {
 	}
 
 	float intensity = 1.0 - smoothstep(line_render_width, line_render_width * 2.0, closest_distance);
-	COLOR = vec4(vec3(intensity), 1.0);
+	COLOR = vec4(intensity,intensity,intensity, 1.0);
 }
 
 

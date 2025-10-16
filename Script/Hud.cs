@@ -10,6 +10,7 @@ public partial class Hud : Control
     [Signal] public delegate void ShowFileWindowEventHandler();
     
     [Export] private float _idleTime = 3.0f;
+    [Export] private float _helpTime = 5.0f;
 
     private Timer _idleTimer;
     private ItemList _audioList;
@@ -23,7 +24,7 @@ public partial class Hud : Control
         _audioList = GetNode<ItemList>("AudioList");
         
 		var window = GetTree().GetRoot().GetWindow();
-        window.MouseEntered += Active;
+        window.MouseEntered += ActiveAll;
         window.MouseExited += Hide;
         
         Hide();
@@ -33,10 +34,10 @@ public partial class Hud : Control
     {
         if (@event is not InputEventMouse) return;
         
-        Active();
+        ActiveAll();
     }
 
-    private void Active()
+    private void ActiveAll()
     {
         Show();
         _idleTimer.Start(_idleTime);
@@ -60,6 +61,30 @@ public partial class Hud : Control
         var listY = Mathf.Clamp(_audioList.GetItemCount() * 27f + 8f, 0f, 400f);
         _audioList.Size = new Vector2(_audioList.Size.X,listY);
     }
+
+    private void AddAudioList(string name)
+    {
+        _audioList.AddItem(name);
+        UpdateAudioList();
+    }
+
+    private void RemoveAudioList(string name)
+    {
+        for (var i = 0; i < _audioList.ItemCount; i++)
+        {
+            if (_audioList.GetItemText(i) != name) continue;
+            _audioList.RemoveItem(i);
+            break;
+        }
+        UpdateAudioList();
+    }
     private void OnIdleTimerTimeout() => Hide();
     private void OnNewAudioButtenPressed() => EmitSignalShowFileWindow();
+
+    private void OnHelpButtonPressed()
+    {
+        var label = GetNode<Label>("NoticeLabel");
+        label.Visible = !label.Visible;
+        GetTree().CreateTimer(_helpTime).Timeout += () => label.Visible = false;
+    }
 }

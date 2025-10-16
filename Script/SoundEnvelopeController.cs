@@ -5,14 +5,19 @@ namespace DanceCurve.Script;
 
 public partial class SoundEnvelopeController : Node2D
 {
-    //TODO:添加贝塞尔曲线
     [Signal]
     public delegate void AudioProgressEventHandler(float progress);
 
     [Signal]
     public delegate void FpsCounterEventHandler(float fps);
+
     [Signal]
     public delegate void AudioFinishedEventHandler();
+
+    [Signal]
+    public delegate void RemoveAudioFromListEventHandler(string name);
+    [Signal]
+    public delegate void AddAudioToListEventHandler(string name);
     
     [Export] public int WaveformSampleCount { get; set; } = 512;
 	[Export] public string CaptureBusName { get; set; } = "SubBus";
@@ -163,7 +168,7 @@ public partial class SoundEnvelopeController : Node2D
         for (var x = 0; x < WaveformSampleCount; x++)
         {
             var v = x < count ? samples[x] : 0.0f;
-            _audioImage.SetPixel(x, 0, new Color(v, 0f, 0f));
+            _audioImage.SetPixel(x, 0, new Color(v, v, v));
         }
         _audioTexture.Update(_audioImage);
     }
@@ -238,24 +243,25 @@ public partial class SoundEnvelopeController : Node2D
 
     private void SetupAudioPlayer()
     {
-	    ArgumentNullException.ThrowIfNull(PlayingAudio);
-
-	    _effectAudioPlayer?.Free();
-	    _realAudioPlayer?.Free();
-	    _effectAudioPlayer = InitAudioPlayer(PlayingAudio, "SubBus");
+	    if(PlayingAudio == null) return;
+	    
+	    _effectAudioPlayer ??= InitAudioPlayer(PlayingAudio, "SubBus");
 	    _effectAudioPlayer.Play();
-	    _realAudioPlayer = InitAudioPlayer(PlayingAudio);
+	    _realAudioPlayer ??= InitAudioPlayer(PlayingAudio);
 	    GetTree().CreateTimer(AudioFixDelay).Timeout += () =>
 	    {
 		    _realAudioPlayer.Play();
 	    };
 	    _lastProgressOfReal = 0f;
 	    _totalProgress = (float)PlayingAudio.GetLength();
+	    if (_realAudioPlayer.HasConnections("finished")) return;
+	    GD.Print("Connect to finish");
 	    _realAudioPlayer.Finished += OnAudioFinished;
     }
 
     private void OnAudioFinished()
     {
+	    GD.Print($"Audio finished,mode:{AudioFinishMode}");
 	    switch (AudioFinishMode)
 	    {
 		    case AudioFinishModeEnum.Stop:
